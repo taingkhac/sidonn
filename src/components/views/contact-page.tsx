@@ -107,8 +107,8 @@ export function ContactPage({ onNavigate }: ContactPageProps) {
                     <h3 className="font-semibold mb-1">
                       {translate('contact_email_label', lang, 'Email')}
                     </h3>
-                    <p className="text-muted-foreground">info@gla-corp.com</p>
-                    <p className="text-muted-foreground">sales@gla-corp.com</p>
+                    <p className="text-muted-foreground">{translate('company_email_primary', lang, 'info@gla-corp.com')}</p>
+                    <p className="text-muted-foreground">{translate('company_email_secondary', lang, 'sales@gla-corp.com')}</p>
                   </div>
                 </div>
 
@@ -120,8 +120,8 @@ export function ContactPage({ onNavigate }: ContactPageProps) {
                     <h3 className="font-semibold mb-1">
                       {translate('contact_phone_label', lang, 'Phone')}
                     </h3>
-                    <p className="text-muted-foreground">+1 (555) 123-4567</p>
-                    <p className="text-muted-foreground">+1 (555) 765-4321</p>
+                    <p className="text-muted-foreground">{translate('company_phone_primary', lang, '+1 (555) 123-4567')}</p>
+                    <p className="text-muted-foreground">{translate('company_phone_secondary', lang, '+1 (555) 765-4321')}</p>
                   </div>
                 </div>
 
@@ -133,13 +133,16 @@ export function ContactPage({ onNavigate }: ContactPageProps) {
                     <h3 className="font-semibold mb-1">
                       {translate('contact_address_label', lang, 'Headquarters')}
                     </h3>
-                    <p className="text-muted-foreground">
-                      123 Innovation Drive
-                      <br />
-                      Silicon Valley, CA 94025
-                      <br />
-                      United States
-                    </p>
+                    <p
+                      className="text-muted-foreground"
+                      dangerouslySetInnerHTML={{
+                        __html: translate(
+                          'company_address_html',
+                          lang,
+                          '123 Innovation Drive<br />Silicon Valley, CA 94025<br />United States',
+                        ),
+                      }}
+                    />
                   </div>
                 </div>
               </div>

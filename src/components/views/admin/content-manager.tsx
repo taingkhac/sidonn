@@ -32,7 +32,25 @@ interface ContentBlock {
 }
 
 const LANGUAGES = ['en', 'vi', 'zh', 'ja', 'ko']
-const VIEW_TARGETS = ['shared', 'home', 'about', 'career', 'contact', 'legal']
+const VIEW_TARGETS = [
+  'shared',
+  'home',
+  'about',
+  'career',
+  'contact',
+  'solutions-overview',
+  'resources',
+  'support',
+  'privacy',
+  'terms',
+  'newsroom',
+  'product-racking',
+  'product-containers',
+  'product-conveyors',
+  'product-robotics',
+  'software-wamas',
+  'software-sap',
+]
 
 export function ContentManager() {
   const [blocks, setBlocks] = useState<ContentBlock[]>([])
@@ -102,9 +120,9 @@ export function ContentManager() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
               placeholder="Tìm theo Key hoặc Nội dung..."
@@ -114,7 +132,7 @@ export function ContentManager() {
             />
           </div>
           <Select value={filterTarget} onValueChange={setFilterTarget}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="Theo trang" />
             </SelectTrigger>
             <SelectContent>
@@ -127,7 +145,7 @@ export function ContentManager() {
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={handleCreateNew} className="bg-primary hover:bg-primary/90">
+        <Button onClick={handleCreateNew} className="bg-primary hover:bg-primary/90 w-full lg:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Thêm Nhãn mới
         </Button>

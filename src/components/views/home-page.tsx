@@ -30,9 +30,10 @@ export function HomePage({ onNavigate }: HomePageProps) {
 
       if (data) {
         setSolutions(
-          data.map((item) => ({
+          data.map((item: any) => ({
             id: item.slug,
             iconName: item.icon_name || 'Box',
+            thumbnailUrl: item.thumbnail_url || item.image_url,
             title: item.title_translations?.[lang] || item.title_translations?.['en'] || item.slug,
             description: item.desc_translations?.[lang] || item.desc_translations?.['en'] || '',
           })),
@@ -119,18 +120,38 @@ export function HomePage({ onNavigate }: HomePageProps) {
                 <div
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
-                  className="group p-8 bg-white border border-border hover:border-primary transition-all duration-300 hover:-translate-y-2 hover:shadow-lg cursor-pointer"
+                  className="group bg-white border border-border hover:border-primary transition-all duration-300 hover:-translate-y-2 hover:shadow-lg cursor-pointer overflow-hidden flex flex-col"
                 >
-                  <div className="mb-6">
-                    <div className="h-14 w-14 bg-primary/10 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
-                      <Icon className="h-7 w-7 text-primary group-hover:text-white transition-colors duration-300" />
+                  {/* Image/Icon Header */}
+                  <div className="relative h-48 w-full bg-slate-100 overflow-hidden">
+                    {item.thumbnailUrl ? (
+                      <img
+                        src={item.thumbnailUrl}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-secondary">
+                        <Icon className="h-12 w-12 text-primary/20" />
+                      </div>
+                    )}
+                    {/* Floating Icon Overlay */}
+                    <div className="absolute bottom-4 left-6 h-12 w-12 bg-white flex items-center justify-center shadow-md group-hover:bg-primary transition-colors duration-300">
+                      <Icon className="h-6 w-6 text-primary group-hover:text-white transition-colors duration-300" />
                     </div>
                   </div>
-                  <h3 className="text-2xl font-semibold mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed mb-4">{item.description}</p>
-                  <div className="flex items-center gap-2 text-primary font-semibold group-hover:gap-3 transition-all">
-                    {translate('btn_learn_more', lang, 'Learn more')}
-                    <ArrowRight className="h-4 w-4" />
+
+                  <div className="p-6 pt-8 flex-1 flex flex-col">
+                    <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">
+                      {item.title}
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed mb-6 line-clamp-3 text-sm">
+                      {item.description}
+                    </p>
+                    <div className="mt-auto flex items-center gap-2 text-primary text-sm font-bold group-hover:gap-3 transition-all">
+                      {translate('btn_learn_more', lang, 'Learn more')}
+                      <ArrowRight className="h-4 w-4" />
+                    </div>
                   </div>
                 </div>
               )

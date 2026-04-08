@@ -21,7 +21,7 @@ export function Footer({ onNavigate }: FooterProps) {
           <div>
             <div className="mb-4">
               <img
-                src="/sidonn-logo-clean.jpg"
+                src={translate('company_logo_url', lang, '/sidonn-logo-clean.jpg')}
                 alt="Sidonn"
                 className="h-12 w-auto object-contain brightness-0 invert opacity-90"
               />
@@ -35,26 +35,30 @@ export function Footer({ onNavigate }: FooterProps) {
             </p>
             <div className="flex items-center gap-3">
               <Link
-                href="#"
+                href={translate('social_facebook_url', lang, '#')}
                 className="w-9 h-9 rounded-full border border-slate-700 flex items-center justify-center hover:bg-primary hover:border-primary transition-colors"
+                target={translate('social_facebook_url', lang, '#') !== '#' ? '_blank' : undefined}
               >
                 <Facebook className="h-4 w-4" />
               </Link>
               <Link
-                href="#"
+                href={translate('social_twitter_url', lang, '#')}
                 className="w-9 h-9 rounded-full border border-slate-700 flex items-center justify-center hover:bg-primary hover:border-primary transition-colors"
+                target={translate('social_twitter_url', lang, '#') !== '#' ? '_blank' : undefined}
               >
                 <Twitter className="h-4 w-4" />
               </Link>
               <Link
-                href="#"
+                href={translate('social_linkedin_url', lang, '#')}
                 className="w-9 h-9 rounded-full border border-slate-700 flex items-center justify-center hover:bg-primary hover:border-primary transition-colors"
+                target={translate('social_linkedin_url', lang, '#') !== '#' ? '_blank' : undefined}
               >
                 <Linkedin className="h-4 w-4" />
               </Link>
               <Link
-                href="#"
+                href={translate('social_youtube_url', lang, '#')}
                 className="w-9 h-9 rounded-full border border-slate-700 flex items-center justify-center hover:bg-primary hover:border-primary transition-colors"
+                target={translate('social_youtube_url', lang, '#') !== '#' ? '_blank' : undefined}
               >
                 <Youtube className="h-4 w-4" />
               </Link>

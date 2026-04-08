@@ -108,10 +108,10 @@ export function SimplePage({ onNavigate, pageType }: SimplePageProps) {
                 {translate('support_phone_desc', lang, 'Available 24/7')}
               </p>
               <a
-                href="tel:+18005551234"
+                href={`tel:${translate('company_phone_primary', lang, '+18005551234')}`}
                 className="text-primary font-semibold hover:text-primary/80"
               >
-                +1 (800) 555-1234
+                {translate('company_phone_primary', lang, '+1 (800) 555-1234')}
               </a>
             </div>
             <div className="p-6 border border-border text-center hover:border-primary transition-colors">
@@ -123,10 +123,10 @@ export function SimplePage({ onNavigate, pageType }: SimplePageProps) {
                 {translate('support_email_desc', lang, 'Response within 24 hours')}
               </p>
               <a
-                href="mailto:support@gla.com"
+                href={`mailto:${translate('company_email_primary', lang, 'support@gla.com')}`}
                 className="text-primary font-semibold hover:text-primary/80"
               >
-                support@gla.com
+                {translate('company_email_primary', lang, 'support@gla.com')}
               </a>
             </div>
             <div className="p-6 border border-border text-center hover:border-primary transition-colors">

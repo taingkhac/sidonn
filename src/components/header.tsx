@@ -201,7 +201,11 @@ export function Header({ onNavigate }: HeaderProps) {
             onClick={() => onNavigate?.('home')}
             className="flex items-center hover:opacity-80 transition-opacity"
           >
-            <img src="/sidonn-logo-clean.jpg" alt="Sidonn" className="h-12 w-auto object-contain" />
+            <img
+              src={translate('company_logo_url', lang, '/sidonn-logo-clean.jpg')}
+              alt="Sidonn"
+              className="h-12 w-auto object-contain"
+            />
           </button>
 
           {/* Desktop Navigation */}
@@ -365,9 +369,9 @@ export function Header({ onNavigate }: HeaderProps) {
                 side="right"
                 className="w-[300px] sm:w-[400px] transition-transform duration-300 ease-in-out"
               >
-                <SheetTitle className="sr-only">Mobile Navigation Menu</SheetTitle>
+                <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
                 <SheetDescription className="sr-only">
-                  Navigate through solutions, products, software, and company information
+                  Access navigation links and site settings
                 </SheetDescription>
                 <nav className="flex flex-col gap-4 mt-8">
                   <Accordion type="single" collapsible className="w-full">

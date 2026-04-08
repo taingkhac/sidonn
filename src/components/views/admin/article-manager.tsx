@@ -44,7 +44,9 @@ export function ArticleManager() {
   const pageSize = 10
 
   const [editingItem, setEditingItem] = useState<ArticleData | null>(null)
+  const [pendingThumbnailFile, setPendingThumbnailFile] = useState<File | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [activeLang, setActiveLang] = useState<string>('en')
 
   const fetchArticles = async (cat: string, p: number) => {
     setLoading(true)
@@ -78,6 +80,7 @@ export function ArticleManager() {
       applications_translations: item.applications_translations || {},
     }
     setEditingItem(JSON.parse(JSON.stringify(safeItem)))
+    setPendingThumbnailFile(null)
     setIsDialogOpen(true)
   }
 
@@ -96,17 +99,44 @@ export function ArticleManager() {
       icon_name: 'Box',
     }
     setEditingItem(fresh)
+    setPendingThumbnailFile(null)
     setIsDialogOpen(true)
   }
 
   const handleSave = async () => {
     if (!editingItem) return
     const isNew = !editingItem.id
+    let finalThumbnailUrl = editingItem.thumbnail_url
+
+    // Nếu có file đang chờ upload, thực hiện upload ngay bây giờ
+    if (pendingThumbnailFile) {
+      try {
+        console.log('[Saver] Uploading pending file:', pendingThumbnailFile.name)
+        const fileExt = pendingThumbnailFile.name.split('.').pop()
+        const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`
+        const filePath = `${fileName}`
+
+        const { error: uploadError } = await supabase.storage
+          .from('media')
+          .upload(filePath, pendingThumbnailFile)
+
+        if (uploadError) throw uploadError
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from('media').getPublicUrl(filePath)
+        finalThumbnailUrl = publicUrl
+        console.log('[Saver] Upload successful! URL:', publicUrl)
+      } catch (err: any) {
+        alert('Lỗi upload ảnh: ' + err.message)
+        return
+      }
+    }
 
     const payload = {
       category: editingItem.category,
       slug: editingItem.slug,
-      thumbnail_url: editingItem.thumbnail_url,
+      thumbnail_url: finalThumbnailUrl,
       icon_name: editingItem.icon_name,
       title_translations: editingItem.title_translations,
       desc_translations: editingItem.desc_translations,
@@ -273,153 +303,173 @@ export function ArticleManager() {
 
           {editingItem && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>Đường dẫn sạch (Slug - Chuẩn SEO)</Label>
-                  <Input
-                    value={editingItem.slug}
-                    onChange={(e) => {
-                      const val = e.target.value
-                        .toLowerCase()
-                        .normalize('NFD')
-                        .replace(/[\u0300-\u036f]/g, '') // Remove accents
-                        .replace(/đ/g, 'd')
-                        .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
-                        .replace(/\s+/g, '-') // Spaces to dashes
-                        .replace(/-+/g, '-') // Double dashes to single
-                      setEditingItem({ ...editingItem, slug: val })
-                    }}
-                  />
-                  <p className="text-[10px] text-slate-400">Ví dụ: kho-thong-minh-sidonn</p>
-                </div>
-                <div className="space-y-2">
-                  <Label>Ảnh Thumbnail Cover</Label>
-                  <ImageUploader
-                    value={editingItem.thumbnail_url || ''}
-                    onChange={(val) => setEditingItem({ ...editingItem, thumbnail_url: val })}
-                  />
-                </div>
-                <div className="space-y-2 border-l pl-6">
-                  <Label>
-                    Tên Icon (từ Lucide, ví dụ: Bot, Package, Boxes, Factory, Plane, Ship)
-                  </Label>
-                  <Input
-                    value={editingItem.icon_name || ''}
-                    onChange={(e) => setEditingItem({ ...editingItem, icon_name: e.target.value })}
-                    placeholder="Vd: Bot"
-                  />
-                  <p className="text-[10px] text-slate-400">Xem tại lucide.dev/icons</p>
-                </div>
-              </div>
-
-              {/* Ngôn ngữ tab (đơn giản hoá bằng cách liệt kê dọc theo từng field) */}
-              <div className="space-y-6 pt-4 border-t">
-                {LANGUAGES.map((lang) => (
-                  <div key={lang} className="p-4 border rounded bg-slate-50/50 space-y-4">
-                    <h4 className="font-bold flex items-center gap-2">
-                      <span className="bg-slate-800 text-white text-xs px-2 py-1 rounded uppercase">
-                        {lang}
-                      </span>
-                    </h4>
-
-                    <div className="space-y-1">
-                      <Label>Tiêu đề</Label>
+              {/* Global Settings Section */}
+              <div className="bg-slate-50 p-6 rounded-xl border border-border space-y-6">
+                <h3 className="font-bold text-slate-900 border-b pb-3 flex items-center gap-2">
+                  <Plus className="h-4 w-4" /> Thông tin chung (Global Settings)
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 font-semibold">
+                        Đường dẫn sạch (Slug - Chuẩn SEO)
+                      </Label>
                       <Input
-                        value={editingItem.title_translations?.[lang] || ''}
-                        onChange={(e) => handleChange('title_translations', lang, e.target.value)}
+                        className="bg-white"
+                        value={editingItem.slug}
+                        onChange={(e) => {
+                          const val = e.target.value
+                            .toLowerCase()
+                            .normalize('NFD')
+                            .replace(/[\u0300-\u036f]/g, '') // Remove accents
+                            .replace(/đ/g, 'd')
+                            .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
+                            .replace(/\s+/g, '-') // Spaces to dashes
+                            .replace(/-+/g, '-') // Double dashes to single
+                          setEditingItem({ ...editingItem, slug: val })
+                        }}
                       />
+                      <p className="text-[10px] text-slate-400">Ví dụ: kho-thong-minh-sidonn</p>
                     </div>
 
-                    <div className="space-y-1">
-                      <Label>Mô tả ngắn (Short description)</Label>
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 font-semibold">Tên Icon (Lucide)</Label>
                       <Input
-                        value={editingItem.desc_translations?.[lang] || ''}
-                        onChange={(e) => handleChange('desc_translations', lang, e.target.value)}
+                        className="bg-white"
+                        value={editingItem.icon_name || ''}
+                        onChange={(e) =>
+                          setEditingItem({ ...editingItem, icon_name: e.target.value })
+                        }
+                        placeholder="Vd: Bot, Box, Package"
                       />
+                      <p className="text-[10px] text-slate-400">Xem tại lucide.dev/icons</p>
                     </div>
-
-                    <div className="space-y-1">
-                      <Label>Nội dung chi tiết (Rich Text Editor)</Label>
-                      <RichTextEditor
-                        value={editingItem.content_translations?.[lang] || ''}
-                        onChange={(val) => handleChange('content_translations', lang, val)}
-                      />
-                    </div>
-
-                    {editingItem.category === 'solutions' && (
-                      <div className="grid grid-cols-1 gap-4 pt-4 border-t border-dashed">
-                        <div className="space-y-1">
-                          <Label className="text-xs">
-                            Tính năng (Features) - Mỗi dòng 1 tính năng
-                          </Label>
-                          <Textarea
-                            placeholder="Feature 1\nFeature 2..."
-                            value={
-                              Array.isArray(editingItem.features_translations?.[lang])
-                                ? editingItem.features_translations?.[lang].join('\n')
-                                : ''
-                            }
-                            onChange={(e) =>
-                              handleChange(
-                                'features_translations',
-                                lang,
-                                e.target.value.split('\n').filter((s) => s.trim()),
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Lợi ích (Benefits) - Mỗi dòng 1 lợi ích</Label>
-                          <Textarea
-                            placeholder="Benefit 1\nBenefit 2..."
-                            value={
-                              Array.isArray(editingItem.benefits_translations?.[lang])
-                                ? editingItem.benefits_translations?.[lang].join('\n')
-                                : ''
-                            }
-                            onChange={(e) =>
-                              handleChange(
-                                'benefits_translations',
-                                lang,
-                                e.target.value.split('\n').filter((s) => s.trim()),
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">
-                            Ứng dụng (Applications) - Phân cách bởi dấu phẩy
-                          </Label>
-                          <Input
-                            placeholder="App 1, App 2..."
-                            value={
-                              Array.isArray(editingItem.applications_translations?.[lang])
-                                ? editingItem.applications_translations?.[lang].join(', ')
-                                : ''
-                            }
-                            onChange={(e) =>
-                              handleChange(
-                                'applications_translations',
-                                lang,
-                                e.target.value
-                                  .split(',')
-                                  .map((s) => s.trim())
-                                  .filter(Boolean),
-                              )
-                            }
-                          />
-                        </div>
-                      </div>
-                    )}
                   </div>
-                ))}
+
+                  <div className="space-y-2">
+                    <Label className="text-slate-700 font-semibold">Ảnh Thumbnail / Cover</Label>
+                    <ImageUploader
+                      value={editingItem.thumbnail_url || ''}
+                      onChange={(val) => setEditingItem({ ...editingItem, thumbnail_url: val })}
+                      onFileSelect={(file) => setPendingThumbnailFile(file)}
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="flex justify-end gap-3 sticky bottom-0 bg-white pt-4">
+              {/* Language Selection Tabs */}
+              <div className="space-y-6">
+                <div className="flex border-b border-border overflow-x-auto scrollbar-hide no-scrollbar whitespace-nowrap">
+                  {LANGUAGES.map((lang) => (
+                    <button
+                      key={lang}
+                      type="button"
+                      onClick={() => setActiveLang(lang)}
+                      className={`px-6 py-3 text-sm font-bold transition-all relative flex-shrink-0 ${
+                        activeLang === lang
+                          ? 'text-primary'
+                          : 'text-slate-400 hover:text-slate-600'
+                      }`}
+                    >
+                      {lang.toUpperCase()}
+                      {activeLang === lang && (
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Selected Language Content Editor */}
+                <div className="p-6 border rounded-xl bg-white shadow-sm space-y-6 animate-in fade-in duration-300">
+                  <div className="flex items-center gap-3">
+                    <span className="bg-primary text-primary-foreground text-xs px-2.5 py-1 rounded font-bold uppercase tracking-wider">
+                      {activeLang}
+                    </span>
+                    <h4 className="text-lg font-bold text-slate-900">Nội dung chi tiết</h4>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-slate-700 font-semibold">Tiêu đề (Title)</Label>
+                    <Input
+                      value={editingItem.title_translations?.[activeLang] || ''}
+                      onChange={(e) => handleChange('title_translations', activeLang, e.target.value)}
+                      placeholder={`Tiêu đề bằng tiếng ${activeLang.toUpperCase()}`}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-slate-700 font-semibold">Mô tả ngắn (Description)</Label>
+                    <Input
+                      value={editingItem.desc_translations?.[activeLang] || ''}
+                      onChange={(e) => handleChange('desc_translations', activeLang, e.target.value)}
+                      placeholder="Mô tả tóm tắt cho bài viết"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-slate-700 font-semibold">Nội dung (Content)</Label>
+                    <RichTextEditor
+                      value={editingItem.content_translations?.[activeLang] || ''}
+                      onChange={(val) => handleChange('content_translations', activeLang, val)}
+                    />
+                  </div>
+
+                  {editingItem.category === 'solutions' && (
+                    <div className="grid grid-cols-1 gap-6 pt-6 border-t border-dashed">
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 font-semibold">
+                          Tính năng (Features) - Mỗi dòng 1 tính năng
+                        </Label>
+                        <Textarea
+                          className="min-h-[100px]"
+                          placeholder="Tính năng 1\nTính năng 2..."
+                          value={
+                            Array.isArray(editingItem.features_translations?.[activeLang])
+                              ? editingItem.features_translations?.[activeLang].join('\n')
+                              : ''
+                          }
+                          onChange={(e) =>
+                            handleChange(
+                              'features_translations',
+                              activeLang,
+                              e.target.value.split('\n').filter((s) => s.trim()),
+                            )
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-slate-700 font-semibold">
+                          Lợi ích (Benefits) - Mỗi dòng 1 lợi ích
+                        </Label>
+                        <Textarea
+                          className="min-h-[100px]"
+                          placeholder="Lợi ích 1\nLợi ích 2..."
+                          value={
+                            Array.isArray(editingItem.benefits_translations?.[activeLang])
+                              ? editingItem.benefits_translations?.[activeLang].join('\n')
+                              : ''
+                          }
+                          onChange={(e) =>
+                            handleChange(
+                              'benefits_translations',
+                              activeLang,
+                              e.target.value.split('\n').filter((s) => s.trim()),
+                            )
+                          }
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 sticky bottom-0 bg-white pt-4 z-10 border-t">
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Hủy
                 </Button>
-                <Button onClick={handleSave}>Lưu Bài viết</Button>
+                <Button onClick={handleSave} className="px-8 shadow-lg shadow-primary/20">
+                  Lưu Bài viết
+                </Button>
               </div>
             </div>
           )}

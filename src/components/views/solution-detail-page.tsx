@@ -11,6 +11,7 @@ interface SolutionDetailPageProps {
     features: string[]
     benefits: string[]
     applications: string[]
+    imageUrl?: string
   }
   onNavigate: (view: string) => void
   isHtml?: boolean
@@ -54,15 +55,25 @@ export function SolutionDetailPage({ solution, onNavigate, isHtml }: SolutionDet
       </section>
 
       {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-        <div className="container mx-auto px-4">
+      <section className="relative py-24 md:py-32 bg-slate-900 text-white overflow-hidden">
+        {solution.imageUrl && (
+          <div className="absolute inset-0 z-0">
+            <img
+              src={solution.imageUrl}
+              alt={solution.title}
+              className="w-full h-full object-cover opacity-40 mix-blend-multiply"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
+          </div>
+        )}
+        <div className="relative z-10 container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <div className="flex justify-center mb-6">
-              <div className="h-16 w-16 md:h-20 md:w-20 bg-primary flex items-center justify-center">
+              <div className="h-16 w-16 md:h-20 md:w-20 bg-primary flex items-center justify-center shadow-2xl">
                 <Icon className="h-8 w-8 md:h-10 md:w-10 text-white" />
               </div>
             </div>
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 text-balance leading-tight">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 text-balance leading-tight drop-shadow-lg">
               {solution.title}
             </h1>
             {isHtml ? (

@@ -52,7 +52,7 @@ const resources: Resource[] = [
 
 export function DownloadsPage({ onNavigate }: { onNavigate?: (view: string) => void }) {
   const { lang } = useLanguage()
-  const { t: translate } = useCMS('downloads')
+  const { t: translate } = useCMS('resources')
   const [activeFilter, setActiveFilter] = useState<FilterType>('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)

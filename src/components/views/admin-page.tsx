@@ -21,6 +21,13 @@ import { LeadsManager } from '@/components/views/admin/leads-manager'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet"
 
 interface AdminPageProps {
   onNavigate: (view: string) => void
@@ -151,54 +158,117 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
     )
   }
 
-  return (
-    <div className="flex min-h-screen bg-slate-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col sticky top-0 h-screen shrink-0">
-        <div className="p-6 border-b border-slate-800">
-          <h2 className="text-xl font-bold tracking-tight">Sidonn Admin</h2>
-          <p className="text-xs text-slate-400 mt-1">Nền tảng quản trị nội dung</p>
-        </div>
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full bg-slate-900 text-white">
+      <div className="p-6 border-b border-slate-800">
+        <h2 className="text-xl font-bold tracking-tight">Sidonn Admin</h2>
+        <p className="text-xs text-slate-400 mt-1">Nền tảng quản trị nội dung</p>
+      </div>
 
-        <nav className="flex-1 p-4 space-y-1">
-          {menuItems.map((item) => {
-            const Icon = item.icon
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id as AdminTab)}
-                className={cn(
-                  'w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-sm font-medium',
-                  activeTab === item.id
-                    ? 'bg-primary text-white shadow-lg'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800',
-                )}
-              >
-                <Icon className="h-5 w-5" />
-                {item.label}
-              </button>
-            )
-          })}
-        </nav>
+      <nav className="flex-1 p-4 space-y-1">
+        {menuItems.map((item) => {
+          const Icon = item.icon
+          return (
+            <button
+              key={item.id}
+              onClick={() => {
+                setActiveTab(item.id as AdminTab)
+              }}
+              className={cn(
+                'w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-sm font-medium',
+                activeTab === item.id
+                  ? 'bg-primary text-white shadow-lg'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800',
+              )}
+            >
+              <Icon className="h-5 w-5" />
+              {item.label}
+            </button>
+          )
+        })}
+      </nav>
 
-        <div className="p-4 border-t border-slate-800">
+      <div className="p-4 border-t border-slate-800">
+        <button
+          onClick={() => onNavigate('home')}
+          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Về trang chủ
+        </button>
+      </div>
+    </div>
+  )
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
+          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Lock className="h-8 w-8 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Yêu cầu truy cập</h2>
+          <p className="text-slate-500 mb-8">Vui lòng nhập mã PIN để vào trang quản trị Sidonn.</p>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <Input
+              type="password"
+              placeholder="Nhập mã PIN"
+              className="text-center text-2xl tracking-[1em]"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              autoFocus
+            />
+            {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
+            <Button type="submit" className="w-full h-12 text-lg">
+              Đăng nhập
+            </Button>
+          </form>
+
           <button
             onClick={() => onNavigate('home')}
-            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+            className="mt-6 text-sm text-slate-400 hover:text-slate-600 transition-colors"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Về trang chủ
+            Quay lại trang chủ
           </button>
         </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex min-h-screen bg-slate-50">
+      {/* Static Sidebar for Desktop */}
+      <aside className="hidden lg:flex w-64 sticky top-0 h-screen shrink-0">
+        <SidebarContent />
       </aside>
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col max-h-screen overflow-y-auto">
         {/* Top Header */}
-        <header className="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10 shrink-0">
-          <h1 className="text-lg font-semibold text-slate-800 capitalize">
-            {menuItems.find((m) => m.id === activeTab)?.label}
-          </h1>
+        <header className="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex justify-between items-center sticky top-0 z-20 shrink-0">
+          <div className="flex items-center gap-4">
+            {/* Mobile Sidebar Toggle */}
+            <div className="lg:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MenuIcon className="h-6 w-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="p-0 w-64 border-none">
+                  <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Access administrative sections of the application
+                  </SheetDescription>
+                  <SidebarContent />
+                </SheetContent>
+              </Sheet>
+            </div>
+            <h1 className="text-lg font-semibold text-slate-800 capitalize">
+              {menuItems.find((m) => m.id === activeTab)?.label}
+            </h1>
+          </div>
           <div className="flex items-center gap-2">
             <div
               className={cn(
@@ -206,7 +276,9 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                 dbStatus === 'Connected' ? 'bg-emerald-500' : 'bg-red-500',
               )}
             />
-            <span className="text-xs font-medium text-slate-500">Supabase: {dbStatus}</span>
+            <span className="hidden sm:inline text-xs font-medium text-slate-500">
+              Supabase: {dbStatus}
+            </span>
           </div>
         </header>
 

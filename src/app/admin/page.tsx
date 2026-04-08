@@ -1,8 +1,9 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
+
 import { useRouter } from 'next/navigation'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
 import { AdminPage } from '@/components/views/admin-page'
 
 export default function AdminRoute() {
@@ -22,11 +23,9 @@ export default function AdminRoute() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header onNavigate={handleNavigate} />
       <main className="flex-1">
         <AdminPage onNavigate={handleNavigate} />
       </main>
-      <Footer onNavigate={handleNavigate} />
     </div>
   )
 }
