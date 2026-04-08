@@ -8,6 +8,21 @@ instrumentation-client.ts
 # Common ignores
 node_modules/
 .next/
+out/
+build/
+dist/
 .env*.local
 .DS_Store
 .vercel
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDEs
+.vscode/
+.idea/
+
+# Testing
+coverage/
